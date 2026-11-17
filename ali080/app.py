@@ -21,9 +21,6 @@ CLASS_CHOICES = ["All", "With Helmet", "Without Helmet"]
 # ------------------------------------------------------------------
 BG_LIGHT = "#fff7ed"          # page background (light mode)
 BG_DARK = "#1c1917"           # page background (dark mode)
-MAIN_COLOR = "#a108af"        # buttons and slider
-MAIN_COLOR_HOVER = "#a707d3"  # button colour when the mouse is over it
-BUTTON_TEXT = "#ffffff"       # text on the buttons
 HEADER_COLOR_1 = "#f97316"    # header gradient: left colour
 HEADER_COLOR_2 = "#fbbf24"    # header gradient: right colour
 
@@ -51,6 +48,7 @@ THEME = gr.themes.Soft(
     body_background_fill=BG_LIGHT,
     body_background_fill_dark=BG_DARK,
 )
+
 HEADER_GRADIENT = f"linear-gradient(90deg, {HEADER_COLOR_1}, {HEADER_COLOR_2})"
 
 
@@ -101,6 +99,7 @@ def make_banner(with_n, without_n, class_filter):
 
 
 def detect(image, confidence, class_filter, show_conf):
+    """Run YOLOv8 on one image and return banner, annotated image and table."""
     if image is None:
         raise gr.Error("Please upload an image or take a photo first.")
 
@@ -137,6 +136,12 @@ example_paths = sorted(
     + glob.glob(os.path.join(BASE_DIR, "examples", "*.png"))
 )
 
+
+def pick_example(evt: gr.SelectData):
+    """Return the file path of the thumbnail that was clicked."""
+    return example_paths[evt.index]
+
+
 with gr.Blocks(title="Helmet Detection") as demo:
     gr.HTML(
         "<div style='display:flex;align-items:center;gap:22px;'>"
@@ -145,8 +150,8 @@ with gr.Blocks(title="Helmet Detection") as demo:
         "justify-content:center;flex-shrink:0;'>" + HELMET_SVG + "</div>"
         "<div>"
         "<h1>Helmet Detection</h1>"
-        "<p>Upload a photo or use your webcam. The model finds each rider and "
-        "tells you whether they are wearing a helmet.</p>"
+        "<p>Upload a photo or take one with your webcam. The model finds each "
+        "rider and tells you whether they are wearing a helmet.</p>"
         "</div></div>",
         elem_classes=["app-header"],
     )
@@ -156,7 +161,7 @@ with gr.Blocks(title="Helmet Detection") as demo:
             input_image = gr.Image(
                 type="numpy",
                 sources=["upload", "webcam", "clipboard"],
-                label="Image or webcam",
+                label="Image or webcam photo",
             )
             conf_slider = gr.Slider(0.1, 0.9, value=0.4, step=0.05,
                                     label="Confidence threshold")
@@ -173,17 +178,32 @@ with gr.Blocks(title="Helmet Detection") as demo:
                 label="Detected objects",
             )
 
+    # Collapsible gallery of example images: click one to load and detect it
     if example_paths:
-        gr.Examples(
-            examples=[[p, 0.4, "All", True] for p in example_paths],
-            inputs=[input_image, conf_slider, class_filter, show_conf],
-        )
+        with gr.Accordion(" Example Images ",
+                          open=False):
+            gallery = gr.Gallery(
+                value=example_paths,
+                columns=5,
+                height="auto",
+                object_fit="cover",
+                allow_preview=False,
+                show_label=False,
+            )
 
     detect_btn.click(
         detect,
         [input_image, conf_slider, class_filter, show_conf],
         [banner, output_image, table],
     )
+
+    if example_paths:
+        # Click a thumbnail: load it into the input box, then run the detection
+        gallery.select(pick_example, None, input_image).then(
+            detect,
+            [input_image, conf_slider, class_filter, show_conf],
+            [banner, output_image, table],
+        )
 
     gr.Markdown(
         "Model: YOLOv8n fine-tuned on the Bike Helmet Detection dataset "
