@@ -16,14 +16,53 @@ model = YOLO(MODEL_PATH)
 CLASS_CHOICES = ["All", "With Helmet", "Without Helmet"]
 
 
-THEME = gr.themes.Soft(
-    primary_hue="orange",
-    secondary_hue="amber",
-    neutral_hue="slate",
-    font=[gr.themes.GoogleFont("Poppins"), "ui-sans-serif", "sans-serif"],
+# ------------------------------------------------------------------
+# DESIGN SETTINGS: change only the colour codes in quotes
+# ------------------------------------------------------------------
+BG_LIGHT = "#fff7ed"          # page background (light mode)
+BG_DARK = "#1c1917"           # page background (dark mode)
+MAIN_COLOR = "#a108af"        # buttons and slider
+MAIN_COLOR_HOVER = "#a707d3"  # button colour when the mouse is over it
+BUTTON_TEXT = "#ffffff"       # text on the buttons
+HEADER_COLOR_1 = "#f97316"    # header gradient: left colour
+HEADER_COLOR_2 = "#fbbf24"    # header gradient: right colour
+
+# Main colour scale: labels, slider, icons and buttons all use these shades.
+# Lower numbers are lighter, higher numbers are darker.
+PRIMARY = gr.themes.Color(
+    c50="#fff7ed",
+    c100="#ffedd5",
+    c200="#fed7aa",
+    c300="#fdba74",
+    c400="#fb923c",
+    c500="#f97316",
+    c600="#ea580c",
+    c700="#c2410c",
+    c800="#9a3412",
+    c900="#7c2d12",
+    c950="#431407",
+    name="custom_primary",
 )
 
-HEADER_GRADIENT = "linear-gradient(90deg, #f97316, #fbbf24)"  # header colours
+THEME = gr.themes.Soft(
+    primary_hue=PRIMARY,
+    font=[gr.themes.GoogleFont("Poppins"), "ui-sans-serif", "sans-serif"],
+).set(
+    body_background_fill=BG_LIGHT,
+    body_background_fill_dark=BG_DARK,
+)
+HEADER_GRADIENT = f"linear-gradient(90deg, {HEADER_COLOR_1}, {HEADER_COLOR_2})"
+
+
+# Helmet drawing shown in the header badge
+HELMET_SVG = """
+<svg width="60" height="60" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 40 C8 20 20 10 34 10 C48 10 58 20 58 38 L58 46 C58 48 56 50 54 50 L14 50 C10 50 8 46 8 40 Z" fill="#ffffff"/>
+<path d="M15 24 C22 16 34 13 46 17" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+<rect x="30" y="24" width="28" height="13" rx="6" fill="#7c2d12"/>
+<rect x="12" y="50" width="42" height="5" rx="2.5" fill="#7c2d12"/>
+</svg>
+"""
 
 CSS = f"""
 .gradio-container {{ max-width: 1150px !important; margin: auto !important; }}
@@ -99,10 +138,16 @@ example_paths = sorted(
 )
 
 with gr.Blocks(title="Helmet Detection") as demo:
-    gr.Markdown(
-        "# 🪖 Helmet Detection\n"
-        "Upload a photo or use your webcam. The model finds each rider and "
-        "tells you whether they are wearing a helmet.",
+    gr.HTML(
+        "<div style='display:flex;align-items:center;gap:22px;'>"
+        "<div style='width:84px;height:84px;border-radius:20px;"
+        "background:rgba(255,255,255,0.22);display:flex;align-items:center;"
+        "justify-content:center;flex-shrink:0;'>" + HELMET_SVG + "</div>"
+        "<div>"
+        "<h1>Helmet Detection</h1>"
+        "<p>Upload a photo or use your webcam. The model finds each rider and "
+        "tells you whether they are wearing a helmet.</p>"
+        "</div></div>",
         elem_classes=["app-header"],
     )
 
