@@ -5,9 +5,13 @@
 An interactive web app that detects whether cyclists and riders in an image are wearing a helmet. It uses a **YOLOv8n** object detection model fine-tuned on a public helmet dataset, with a **Gradio** interface.
 
 ## Features
-- Upload an image and get bounding boxes labelled **With Helmet** or **Without Helmet**
-- Adjustable confidence threshold
-- Summary of how many objects of each class were found
+- Upload an image, paste one from the clipboard, or take a photo with the webcam (single-frame capture, not live video)
+- Bounding boxes labelled **With Helmet** or **Without Helmet**
+- Adjustable confidence threshold, with an option to show or hide confidence scores
+- Class filter: show all detections, only With Helmet, or only Without Helmet
+- Colour-coded safety banner (green: all riders wear helmets, red: warning, grey: nothing found or filter active)
+- Results table with the class, confidence and box coordinates of each detection
+- Example images that can be tried with one click
 - Error handling for missing input and a missing model file
 
 ## Project structure
@@ -17,11 +21,13 @@ ali080/
 ├── train.py            # Fine-tuning script (run on a GPU, e.g. Google Colab)
 ├── requirements.txt    # Python dependencies
 ├── models/             # Place best.pt here (not stored in Git)
-├── examples/           # Sample test images (see SOURCES.md)
+├── examples/           # Sample test images
 └── results/            # Training and evaluation charts
 ```
 
 ## Installation
+Requires Python 3.9 or newer.
+
 1. Clone the repository and open the project folder:
    ```bash
    git clone https://github.com/xahiru/PT22026.git
@@ -41,7 +47,7 @@ ali080/
 ```bash
 python app.py
 ```
-Open the local link shown in the terminal (usually http://127.0.0.1:7860), upload an image (or pick one from `examples/`), adjust the confidence threshold, and view the detections.
+The app opens in your browser (usually at http://127.0.0.1:7860). Upload an image, take a webcam photo, or pick one of the examples, adjust the confidence threshold if you like, and click **Detect**.
 
 ## Model
 - **Model:** YOLOv8n (Ultralytics), 3.1M parameters, 8.6 GFLOPs
@@ -67,6 +73,7 @@ Charts (confusion matrix, PR curve, training curves, sample predictions) are in 
 ## Limitations
 - `Without Helmet` is detected less reliably than `With Helmet` (fewer training examples, harder to recognise).
 - The dataset is small and mostly shows cyclists in daylight. Accuracy may drop with unusual angles, low light, heavy occlusion or very small riders.
+- The webcam option analyses a single captured photo, not a live video stream.
 - The small `n` model trades accuracy for speed.
 - This is a coursework project and must not be used as a safety-critical system.
 
