@@ -68,11 +68,11 @@ The app opens in your browser (usually at http://127.0.0.1:7860). Upload an imag
 | With Helmet | 0.910 | 0.911 | 0.950 | 0.490 |
 | Without Helmet | 0.803 | 0.754 | 0.819 | 0.356 |
 
-Charts (confusion matrix, PR curve, training curves, sample predictions) are in `results/`.
+Charts (confusion matrix, PR curve, training curves) are in `results/`. They were produced on the validation split (126 images, 299 instances), while the table above uses the held-out test split.
 
 ## Limitations
 - `Without Helmet` is detected less reliably than `With Helmet` (fewer training examples, harder to recognise).
-- The dataset is small and mostly shows cyclists in daylight. Accuracy may drop with unusual angles, low light, heavy occlusion or very small riders.
+- The dataset is small and shows cyclists, scooter riders and motorcyclists, mostly in daylight. Accuracy may drop with unusual angles, low light, heavy occlusion or very small riders.
 - The webcam option analyses a single captured photo, not a live video stream.
 - The small `n` model trades accuracy for speed.
 - This is a coursework project and must not be used as a safety-critical system.
